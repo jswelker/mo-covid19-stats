@@ -44,11 +44,11 @@
         <div class="row">
 			<div class="col-md-12">
 				<div class="card mb-3">
-					<h2 class="card-header collapsed" data-toggle="collapse" data-target="#filters"
+					<h2 class="card-header collapsed" data-toggle="collapse" data-target="#counties"
 						aria-expanded="true" aria-controls="browse-by-instructor" style="cursor: pointer">
-						Filters
+						Counties
 					</h2>
-					<div class="collapse collapsed" id="filters">
+					<div class="collapse collapsed" id="counties">
 						<div class="card-body">
 							<ul class="collapsible-tree">
 								<li v-for="county in counties" :key="county.name" style="list-style-type: none">
@@ -71,14 +71,9 @@
                     <h2 class="card-title">Total Cases</h2>
                     <canvas id="cases" style="max-height: 500px; width: 100%"></canvas>
                     <script>
-                        var ctx = document.getElementById('cases').getContext('2d');
-                        var chartConfig = {};
-                        chartConfig.options = chartConfig.options || {};
-                        chartConfig.options.tooltips = chartConfig.options.tooltips || {};
-                        chartConfig.options.tooltips.callbacks = chartConfig.options.tooltips.callbacks || {};
-                        chartConfig.options.legend = chartConfig.options.legend || {};
-                        chartConfig.options.legend.labels = chartConfig.options.legend.labels || {};
-                        var myChart = new Chart(ctx, chartConfig);
+                        var casesCtx = document.getElementById('cases').getContext('2d');
+                        var casesChartConfig = {type: "line"};
+                        var casesChart = new Chart(casesCtx, casesChartConfig);
                     </script>
                 </div>
             </div>
@@ -89,14 +84,9 @@
                     <h2 class="card-title">New Cases</h2>
                     <canvas id="new-cases" style="max-height: 500px; width: 100%"></canvas>
                     <script>
-                        var ctx = document.getElementById('new-cases').getContext('2d');
-                        var chartConfig = {};
-                        chartConfig.options = chartConfig.options || {};
-                        chartConfig.options.tooltips = chartConfig.options.tooltips || {};
-                        chartConfig.options.tooltips.callbacks = chartConfig.options.tooltips.callbacks || {};
-                        chartConfig.options.legend = chartConfig.options.legend || {};
-                        chartConfig.options.legend.labels = chartConfig.options.legend.labels || {};
-                        var myChart = new Chart(ctx, chartConfig);
+                        var newCasesCtx = document.getElementById('new-cases').getContext('2d');
+                        var newCasesChartConfig = {type: "line"};
+                        var newCasesChart = new Chart(newCasesCtx, newCasesChartConfig);
                     </script>
                 </div>
             </div>
@@ -107,14 +97,9 @@
                     <h2 class="card-title">Active Cases</h2>
                     <canvas id="active-cases" style="max-height: 500px; width: 100%"></canvas>
                     <script>
-                        var ctx = document.getElementById('active-cases').getContext('2d');
-                        var chartConfig = {};
-                        chartConfig.options = chartConfig.options || {};
-                        chartConfig.options.tooltips = chartConfig.options.tooltips || {};
-                        chartConfig.options.tooltips.callbacks = chartConfig.options.tooltips.callbacks || {};
-                        chartConfig.options.legend = chartConfig.options.legend || {};
-                        chartConfig.options.legend.labels = chartConfig.options.legend.labels || {};
-                        var myChart = new Chart(ctx, chartConfig);
+                        var activeCasesCtx = document.getElementById('active-cases').getContext('2d');
+                        var activeCasesChartConfig = {type: "line"};
+                        var activeCasesChart = new Chart(activeCasesCtx, activeCasesChartConfig);
                     </script>
                 </div>
             </div>
@@ -152,19 +137,72 @@
 		},
 		methods: {
 			toggleCounty: function(county) {
-				this.getData(county);
+				if(county.selected && Object.keys(county.data).length === 0) {
+					var that = this;
+					Promise.resolve(this.getData(county)).then(function() {
+						that.updateChartDataSets();
+					});
+				} else {
+					this.updateChartDataSets();
+				}
 			},
 			getData: function(county) {
 				var encodedCountyName = encodeURIComponent(county.name);
-				const url = "/data/" + encodedCountyName + ".json";
-                axios.get(url).then(function (response) {
-                    course.data = response;
-					console.log(course);
+				const url = "https://jswelker.github.io/mo-covid19-stats/data/" + encodedCountyName + ".json";
+                return axios.get(url).then(function (response) {
+                    county.data = response.data;
                 });
+			},
+			updateChartDataSets: function() {
+				var casesDataSets = [];
+				var newCasesDataSets = [];
+				var activeCasesDataSets = [];
+				for(var county in this.counties) { 
+					if (county.selected === false) {
+						continue;
+					}
+					
+					var casesDataSet = [];
+					var newCasesDataSet = [];
+					var activeCasesDataSet = [];
+					for(var date in county.data) {
+						casesDataSet.push({t: date, y: county.data[date].cases});
+						newCasesDataSet.push({t: date, y: county.data[date].new_cases});
+						activeCasesDataSet.push({t: date, y: county.data[date].active_cases});
+					}
+					casesDataSets.push(casesDataSet);
+					newCasesDataSets.push(newCasesDataSet);
+					activeCasesDataSets.push(activeCasesDataSet);
+				}
+				this.removeChartData(casesChart);
+				this.removeChartData(newCasesChart);
+				this.removeChartData(activeCasesChart);
+				
+				this.addChartData(casesChart, casesDataSets);
+				this.addChartData(newCasesChart, newCasesDataSets);
+				this.addChartData(activeCasesChart, activeCasesDataSets);
+				console.log(casesChart);
+			},
+			
+			removeChartData: function(chart) {
+				chart.data.labels.pop();
+				chart.data.datasets.forEach(function(dataset) {
+					dataset.data.pop();
+				});
+			},
+			
+			addChartData: function(chart, datasets) {
+				for(var i = 0; i < datasets.length; i++) {
+					chart.data.datasets.forEach(function(dataset) {
+						dataset.data.push(datasets[i]);
+					});
+				}
 			}
+			
 		}
 		
 	});
+	// Build the set of counties
 	for(var i = 0; i < COUNTIES.length; i++) {
 		CovidApp.counties.push({
 			name: COUNTIES[i],
@@ -172,6 +210,10 @@
 			data: {}
 		});
 	}
+	
+	// Activate the STATEWIDE "county" by default
+	CovidApp.counties[0].selected = true;
+	CovidApp.toggleCounty(CovidApp.counties[0]);
 	</script>
 
 </body>
