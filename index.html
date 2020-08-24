@@ -1,7 +1,179 @@
 <html>
-<head></head>
+
+<head>
+
+    <title>MO COVID-19 Data By County</title>
+
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.css" rel="stylesheet"
+        integrity="sha256-aa0xaJgmK/X74WM224KMQeNQC2xYKwlAt08oZqjeF0E=" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.min.js"
+        integrity="sha256-ngFW3UnAN0Tnm76mDuu7uUtYEcG3G5H1+zioJw3t+68=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"
+        integrity="sha256-R4pqcOYV8lt7snxMQO/HSbVCFRPMdrhAFMH+vr9giYI=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-colorschemes"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@0.5.7/chartjs-plugin-annotation.min.js"
+        integrity="sha256-Olnajf3o9kfkFGloISwP1TslJiWUDd7IYmfC+GdCKd4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
 <body>
-  <h1>MO COVID-19 Data By County</h1>
-  <p>Testing</p>
+
+    <header>
+        <div class="navbar navbar-dark bg-dark box-shadow">
+            <div class="container d-flex justify-content-between">
+                <h1>MO COVID-19 Data By County</h1>
+            </div>
+        </div>
+    </header>
+
+    <main id="covid-app" role="main" class="container mt-4">
+        <div class="row">
+			<div class="col-md-12">
+				<div class="card mb-3">
+					<h2 class="card-header collapsed" data-toggle="collapse" data-target="#filters"
+						aria-expanded="true" aria-controls="browse-by-instructor" style="cursor: pointer">
+						Filters
+					</h2>
+					<div class="collapse collapsed" id="filters">
+						<div class="card-body">
+							<ul class="collapsible-tree">
+								<li v-for="county in counties" :key="county.name" style="list-style-type: none">
+									<label>
+										<input type="checkbox" v-model="county.selected" v-on:change="toggleCounty(county)"> 
+										{{ county.name }}
+									</label>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+        </div>
+
+        <div class="row">
+
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Total Cases</h2>
+                    <canvas id="cases" style="max-height: 500px; width: 100%"></canvas>
+                    <script>
+                        var ctx = document.getElementById('cases').getContext('2d');
+                        var chartConfig = {};
+                        chartConfig.options = chartConfig.options || {};
+                        chartConfig.options.tooltips = chartConfig.options.tooltips || {};
+                        chartConfig.options.tooltips.callbacks = chartConfig.options.tooltips.callbacks || {};
+                        chartConfig.options.legend = chartConfig.options.legend || {};
+                        chartConfig.options.legend.labels = chartConfig.options.legend.labels || {};
+                        var myChart = new Chart(ctx, chartConfig);
+                    </script>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">New Cases</h2>
+                    <canvas id="new-cases" style="max-height: 500px; width: 100%"></canvas>
+                    <script>
+                        var ctx = document.getElementById('new-cases').getContext('2d');
+                        var chartConfig = {};
+                        chartConfig.options = chartConfig.options || {};
+                        chartConfig.options.tooltips = chartConfig.options.tooltips || {};
+                        chartConfig.options.tooltips.callbacks = chartConfig.options.tooltips.callbacks || {};
+                        chartConfig.options.legend = chartConfig.options.legend || {};
+                        chartConfig.options.legend.labels = chartConfig.options.legend.labels || {};
+                        var myChart = new Chart(ctx, chartConfig);
+                    </script>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Active Cases</h2>
+                    <canvas id="active-cases" style="max-height: 500px; width: 100%"></canvas>
+                    <script>
+                        var ctx = document.getElementById('active-cases').getContext('2d');
+                        var chartConfig = {};
+                        chartConfig.options = chartConfig.options || {};
+                        chartConfig.options.tooltips = chartConfig.options.tooltips || {};
+                        chartConfig.options.tooltips.callbacks = chartConfig.options.tooltips.callbacks || {};
+                        chartConfig.options.legend = chartConfig.options.legend || {};
+                        chartConfig.options.legend.labels = chartConfig.options.legend.labels || {};
+                        var myChart = new Chart(ctx, chartConfig);
+                    </script>
+                </div>
+            </div>
+        </div>
+        </div>
+
+    </main>
+
+    <footer class="container">
+        <p>Footer here</p>
+    </footer>
+	<script>
+	COUNTIES = [
+		"STATEWIDE", "Adair", "Andrew", "Atchison", "Audrain", "Barry", "Barton", "Bates",
+		"Benton", "Bollinger", "Boone", "Buchanan", "Butler", "Caldwell", "Callaway", "Camden",
+		"Cape Girardeau", "Carroll", "Carter", "Cass", "Cedar", "Chariton", "Christian", "Clark",
+		"Clay", "Clinton", "Cole", "Cooper", "Crawford", "Dade", "Dallas", "Daviess", "DeKalb", "Dent",
+		"Douglas", "Dunklin", "Franklin", "Gasconade", "Gentry", "Greene", "Grundy", "Harrison",
+		"Henry", "Hickory", "Holt", "Howell", "Iron", "Jackson", "Jasper", "Jefferson", "Johnson",
+		"Kansas City", "Knox", "Laclede", "Lafayette", "Lawrence", "Lewis", "Lincoln", "Linn",
+		"Livingston", "Macon", "Madison", "Maries", "Marion", "McDonald", "Mercer", "Miller",
+		"Mississippi", "Moniteau", "Monroe", "Montgomery", "Morgan", "New Madrid", "Newton", "Nodaway",
+		"Oregon", "Osage", "Ozark", "Pemiscot", "Perry", "Pettis", "Phelps", "Pike", "Platte",
+		"Polk", "Pulaski", "Putnam", "Ralls", "Randolph", "Ray", "Reynolds", "Ripley", "Saline",
+		"Schuyler", "Scotland", "Scott", "Shannon", "Shelby", "St. Charles", "St. Clair", "St. Francois",
+		"St. Louis City", "St. Louis", "Ste. Genevieve", "Stoddard", "Stone", "Sullivan", "Taney",
+		"Texas", "Vernon", "Warren", "Washington", "Wayne", "Webster", "Worth", "Unassigned" 
+	];
+
+	<!-- Vue app -->
+	const CovidApp = new Vue({
+		el: '#covid-app',
+		data: {
+			counties: [],
+		},
+		methods: {
+			toggleCounty: function(county) {
+				this.getData(county);
+			},
+			getData: function(county) {
+				var encodedCountyName = encodeURIComponent(county.name);
+				const url = "/data/" + encodedCountyName + ".json";
+                axios.get(url).then(function (response) {
+                    course.data = response;
+					console.log(course);
+                });
+			}
+		}
+		
+	});
+	for(var i = 0; i < COUNTIES.length; i++) {
+		CovidApp.counties.push({
+			name: COUNTIES[i],
+			selected: false,
+			data: {}
+		});
+	}
+	</script>
+
 </body>
+
 </html>
