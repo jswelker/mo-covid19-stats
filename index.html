@@ -85,8 +85,8 @@
 			<div class="col-md-6">
 				<div class="card">
 					<div class="card-body">
-						<h2 class="card-title text-center">New Cases</h2>
-						<canvas id="new-cases" style="max-height: 500px; width: 100%"></canvas>
+						<h2 class="card-title text-center">Daily Active Cases (Estimate)<sup>1</sup></h2>
+						<canvas id="active-cases" style="max-height: 500px; width: 100%"></canvas>
 					</div>
 				</div>
 			</div>
@@ -95,8 +95,16 @@
 			<div class="col-md-6">
 				<div class="card">
 					<div class="card-body">
-						<h2 class="card-title text-center">Active Cases (Estimate)<sup>1</sup></h2>
-						<canvas id="active-cases" style="max-height: 500px; width: 100%"></canvas>
+						<h2 class="card-title text-center">Daily New Cases</h2>
+						<canvas id="new-cases" style="max-height: 500px; width: 100%"></canvas>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-body">
+						<h2 class="card-title text-center">Daily New Cases - 14 Day Rolling Average</h2>
+						<canvas id="new-cases-avg" style="max-height: 500px; width: 100%"></canvas>
 					</div>
 				</div>
 			</div>
@@ -106,13 +114,16 @@
 			<h2>Notes</h2>
 			<ol class="pl-3">
 				<li>
+					These active case numbers are an <b>estimate</b> and 
+					should be taken with a grain of salt.
 					Active case data is not published at the county level.
 					The number of active cases for a given day is estimated
 					based on the total number of new cases in the last 14 days
 					minus the total number of deaths in the last 14 days.
-					14 days is based on 
+					The threshold of 14 days is based on 
 					<a href="https://www.hopkinsmedicine.org/health/conditions-and-diseases/coronavirus/diagnosed-with-covid-19-what-to-expect">
-					this Johns Hopkins Medicine article</a>.
+					this Johns Hopkins Medicine article</a> 
+					stating that most cases clear up within two weeks.
 				</li>
 			</ol>
 		</section>
@@ -170,6 +181,21 @@
 			}
 		} 
 	});
+	
+	var newCasesAvgCtx = document.getElementById('new-cases-avg').getContext('2d');
+	var newCasesAvgChart = new Chart(newCasesAvgCtx, {
+		type: "line",
+		data: {},
+		options: {
+			scales: {
+				xAxes: [{type: "time", time: {unit: "day"}}]
+			},
+			tooltips: {
+				intersect: false,
+				mode: "index"
+			}
+		} 
+	});
 
 	var activeCasesCtx = document.getElementById('active-cases').getContext('2d');
 	var activeCasesChart = new Chart(activeCasesCtx, {
@@ -214,6 +240,7 @@
 				var casesData = {datasets: []};
 				var newCasesData = {datasets: []};
 				var activeCasesData = {datasets: []};
+				var newCasesAvgData = {datasets: []}
 				
 				for(var county of this.counties) { 
 					if (county.selected === false) {
@@ -222,19 +249,23 @@
 					var casesDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					var newCasesDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					var activeCasesDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var newCasesAvgDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					for(var date in county.data) {
 						casesDataset.data.push({x: date, y: county.data[date].cases});
 						newCasesDataset.data.push({x: date, y: county.data[date].new_cases});
-						activeCasesDataset.data.push({x: date, y: county.data[date].active_cases});
+						activeCasesDataset.data.push({x: date, y: county.data[date].estimated_active_cases});
+						newCasesAvgDataset.data.push({x: date, y: county.data[date].rolling_avg_new_cases});
 					}
 					casesData.datasets.push(casesDataset);
 					newCasesData.datasets.push(newCasesDataset);
 					activeCasesData.datasets.push(activeCasesDataset);
+					newCasesAvgData.datasets.push(newCasesDataset);
 				}
 				
 				this.updateChart(casesChart, casesData);
 				this.updateChart(newCasesChart, newCasesData);
 				this.updateChart(activeCasesChart, activeCasesData);
+				this.updateChart(newCasesAvgChart, newCasesAvgData);
 			},
 			
 			updateChart: function(chart, data) {
