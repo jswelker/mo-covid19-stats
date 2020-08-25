@@ -31,6 +31,7 @@ date = datetime.date(year=2020,month=3,day=22)
 # Loop through every date and fetch the CSV data until we reach a date
 # that gives us a 404 error
 while True:
+    print(date)
     # Get the CSV text for this date
     yyyy = date.strftime("%Y")
     mm = date.strftime("%m")
@@ -54,26 +55,42 @@ while True:
         if county_name not in all_data:
             all_data[county_name] = {}
             
-        # Look up the county's date for the previous day to calculate new cases and deaths
+        # Look up the county's data for the previous day to calculate new cases and deaths
         yesterday = date - datetime.timedelta(days=1)
         yesterday_data = all_data[county_name].get(yesterday.isoformat())
-        
+                
         cases = int(row.get("Confirmed"))
         new_cases = 0
         if yesterday_data and yesterday_data.get("cases"):
             new_cases = cases - int(yesterday_data.get("cases"))
-        active_cases = int(row.get("Active"))
         deaths = int(row.get("Deaths"))
         new_deaths = 0
         if yesterday_data and yesterday_data.get("deaths"):
             new_deaths = deaths - int(yesterday_data.get("deaths"))
         
+        # Look up the county's data for the previous 13 days
+        # to calculate rolling averages and to estimate active cases
+        past_13_days_data = []
+        for i in range(0,13):
+            past_date = date - datetime.timedelta(days=i+1)
+            past_date_data = all_data[county_name].get(past_date.isoformat())
+            if past_date_data:
+                past_13_days_data.append(past_date_data)
+
+        # Add the current date's data to the past 13 data to get 14-day totals
+        past_14_new_cases = sum([past_date_data.get("new_cases") for past_date_data in past_13_days_data]) + new_cases
+        past_14_new_deaths = sum([past_date_data.get("new_deaths") for past_date_data in past_13_days_data]) + new_deaths
+        
+        rolling_avg_new_cases = int(past_14_new_cases / 14)
+        estimated_active_cases = past_14_new_cases - past_14_new_deaths
+        
         all_data[county_name][date.isoformat()] = {
             "cases": cases,
             "new_cases": new_cases,
-            "active_cases": active_cases,
             "deaths": deaths,
-            "new_deaths": new_deaths
+            "new_deaths": new_deaths,
+            "rolling_avg_new_cases": rolling_avg_new_cases,
+            "estimated_active_cases": estimated_active_cases
         }
         
         # Add this county's data to the statewide totals for this date
@@ -81,17 +98,22 @@ while True:
             all_data["STATEWIDE"][date.isoformat()] = {
                 "cases": 0,
                 "new_cases": 0,
-                "active_cases": 0,
                 "deaths": 0,
-                "new_deaths": 0
+                "new_deaths": 0,
+                "past_14_days_new_cases": 0,
+                "past_14_days_new_deaths": 0,
+                "estimated_active_cases": 0,
+                "rolling_avg_new_cases": 0
             }
-        if isinstance(cases, str) or isinstance(all_data["STATEWIDE"][date.isoformat()]["cases"], str):
-            breakpoint()
+
         all_data["STATEWIDE"][date.isoformat()]["cases"] += cases
         all_data["STATEWIDE"][date.isoformat()]["new_cases"] += new_cases
-        all_data["STATEWIDE"][date.isoformat()]["active_cases"] += active_cases
         all_data["STATEWIDE"][date.isoformat()]["deaths"] += deaths
         all_data["STATEWIDE"][date.isoformat()]["new_deaths"] += new_deaths
+        all_data["STATEWIDE"][date.isoformat()]["past_14_days_new_cases"] += past_14_new_cases
+        all_data["STATEWIDE"][date.isoformat()]["past_14_days_new_deaths"] += past_14_new_deaths
+        all_data["STATEWIDE"][date.isoformat()]["estimated_active_cases"] = all_data["STATEWIDE"][date.isoformat()]["past_14_days_new_cases"] - all_data["STATEWIDE"][date.isoformat()]["past_14_days_new_deaths"]
+        all_data["STATEWIDE"][date.isoformat()]["rolling_avg_new_cases"] = int(all_data["STATEWIDE"][date.isoformat()]["past_14_days_new_cases"] / 14)
         
     # Move on to the next date after handling all counties for this date
     date = date + datetime.timedelta(days=1)

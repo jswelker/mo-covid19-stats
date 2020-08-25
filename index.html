@@ -1,9 +1,10 @@
-<html>
+ <html lang="en"> 
 
 <head>
 
     <title>MO COVID-19 Data By County</title>
-
+	<meta charset="utf-8"/>
+	 
     <!-- CSS Libraries -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
@@ -22,12 +23,20 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
         integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
     </script>
+	<script src="https://cdn.jsdelivr.net/npm/moment@2.25.3/min/moment.min.js"
+		integrity="sha256-C66CaAImteEKZPYvgng9j10J/45e9sAuZyfPYCwp4gE=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"
         integrity="sha256-R4pqcOYV8lt7snxMQO/HSbVCFRPMdrhAFMH+vr9giYI=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-colorschemes"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@0.5.7/chartjs-plugin-annotation.min.js"
         integrity="sha256-Olnajf3o9kfkFGloISwP1TslJiWUDd7IYmfC+GdCKd4=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	
+	<style>
+		h2 {
+			font-size: 1.5rem;
+		}
+	</style>
 </head>
 
 <body>
@@ -40,8 +49,8 @@
         </div>
     </header>
 
-    <main id="covid-app" role="main" class="container mt-4">
-        <div class="row">
+    <main role="main" class="container mt-4">
+        <div class="row" id="covid-app">
 			<div class="col-md-12">
 				<div class="card mb-3">
 					<h2 class="card-header collapsed" data-toggle="collapse" data-target="#counties"
@@ -64,47 +73,49 @@
 			</div>
         </div>
 
-        <div class="row">
+        <div class="row mb-4">
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-body">
+						<h2 class="card-title text-center">Total Cases</h2>
+						<canvas id="cases" style="max-height: 500px; width: 100%"></canvas>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-body">
+						<h2 class="card-title text-center">New Cases</h2>
+						<canvas id="new-cases" style="max-height: 500px; width: 100%"></canvas>
+					</div>
+				</div>
+			</div>
+        </div>
+        <div class="row mb-4">
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-body">
+						<h2 class="card-title text-center">Active Cases (Estimate)<sup>1</sup></h2>
+						<canvas id="active-cases" style="max-height: 500px; width: 100%"></canvas>
+					</div>
+				</div>
+			</div>
+        </div>
 
-            <div class="card">
-                <div class="card-body">
-                    <h2 class="card-title">Total Cases</h2>
-                    <canvas id="cases" style="max-height: 500px; width: 100%"></canvas>
-                    <script>
-                        var casesCtx = document.getElementById('cases').getContext('2d');
-                        var casesChartConfig = {type: "line"};
-                        var casesChart = new Chart(casesCtx, casesChartConfig);
-                    </script>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="card">
-                <div class="card-body">
-                    <h2 class="card-title">New Cases</h2>
-                    <canvas id="new-cases" style="max-height: 500px; width: 100%"></canvas>
-                    <script>
-                        var newCasesCtx = document.getElementById('new-cases').getContext('2d');
-                        var newCasesChartConfig = {type: "line"};
-                        var newCasesChart = new Chart(newCasesCtx, newCasesChartConfig);
-                    </script>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="card">
-                <div class="card-body">
-                    <h2 class="card-title">Active Cases</h2>
-                    <canvas id="active-cases" style="max-height: 500px; width: 100%"></canvas>
-                    <script>
-                        var activeCasesCtx = document.getElementById('active-cases').getContext('2d');
-                        var activeCasesChartConfig = {type: "line"};
-                        var activeCasesChart = new Chart(activeCasesCtx, activeCasesChartConfig);
-                    </script>
-                </div>
-            </div>
-        </div>
-        </div>
+		<section id="notes">
+			<h2>Notes</h2>
+			<ol class="pl-3">
+				<li>
+					Active case data is not published at the county level.
+					The number of active cases for a given day is estimated
+					based on the total number of new cases in the last 14 days
+					minus the total number of deaths in the last 14 days.
+					14 days is based on 
+					<a href="https://www.hopkinsmedicine.org/health/conditions-and-diseases/coronavirus/diagnosed-with-covid-19-what-to-expect">
+					this Johns Hopkins Medicine article</a>.
+				</li>
+			</ol>
+		</section>
 
     </main>
 
@@ -128,6 +139,52 @@
 		"St. Louis City", "St. Louis", "Ste. Genevieve", "Stoddard", "Stone", "Sullivan", "Taney",
 		"Texas", "Vernon", "Warren", "Washington", "Wayne", "Webster", "Worth", "Unassigned" 
 	];
+	
+	<!-- Initialize charts -->
+	var casesCtx = document.getElementById('cases').getContext('2d');
+	var casesChart = new Chart(casesCtx, {
+		type: "line",
+		data: {},
+		options: {
+			scales: {
+				xAxes: [{type: "time", time: {unit: "day"}}]
+			},
+			tooltips: {
+				intersect: false,
+				mode: "index"
+			}
+		} 
+	});
+		
+	var newCasesCtx = document.getElementById('new-cases').getContext('2d');
+	var newCasesChart = new Chart(newCasesCtx, {
+		type: "line",
+		data: {},
+		options: {
+			scales: {
+				xAxes: [{type: "time", time: {unit: "day"}}]
+			},
+			tooltips: {
+				intersect: false,
+				mode: "index"
+			}
+		} 
+	});
+
+	var activeCasesCtx = document.getElementById('active-cases').getContext('2d');
+	var activeCasesChart = new Chart(activeCasesCtx, {
+		type: "line",
+		data: {},
+		options: {
+			scales: {
+				xAxes: [{type: "time", time: {unit: "day"}}]
+			},
+			tooltips: {
+				intersect: false,
+				mode: "index"
+			}
+		} 
+	});
 
 	<!-- Vue app -->
 	const CovidApp = new Vue({
@@ -154,58 +211,44 @@
                 });
 			},
 			updateChartDataSets: function() {
-				var casesDataSets = [];
-				var newCasesDataSets = [];
-				var activeCasesDataSets = [];
-				for(var county in this.counties) { 
+				var casesData = {datasets: []};
+				var newCasesData = {datasets: []};
+				var activeCasesData = {datasets: []};
+				
+				for(var county of this.counties) { 
 					if (county.selected === false) {
 						continue;
 					}
-					
-					var casesDataSet = [];
-					var newCasesDataSet = [];
-					var activeCasesDataSet = [];
+					var casesDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var newCasesDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var activeCasesDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					for(var date in county.data) {
-						casesDataSet.push({t: date, y: county.data[date].cases});
-						newCasesDataSet.push({t: date, y: county.data[date].new_cases});
-						activeCasesDataSet.push({t: date, y: county.data[date].active_cases});
+						casesDataset.data.push({x: date, y: county.data[date].cases});
+						newCasesDataset.data.push({x: date, y: county.data[date].new_cases});
+						activeCasesDataset.data.push({x: date, y: county.data[date].active_cases});
 					}
-					casesDataSets.push(casesDataSet);
-					newCasesDataSets.push(newCasesDataSet);
-					activeCasesDataSets.push(activeCasesDataSet);
+					casesData.datasets.push(casesDataset);
+					newCasesData.datasets.push(newCasesDataset);
+					activeCasesData.datasets.push(activeCasesDataset);
 				}
-				this.removeChartData(casesChart);
-				this.removeChartData(newCasesChart);
-				this.removeChartData(activeCasesChart);
 				
-				this.addChartData(casesChart, casesDataSets);
-				this.addChartData(newCasesChart, newCasesDataSets);
-				this.addChartData(activeCasesChart, activeCasesDataSets);
-				console.log(casesChart);
+				this.updateChart(casesChart, casesData);
+				this.updateChart(newCasesChart, newCasesData);
+				this.updateChart(activeCasesChart, activeCasesData);
 			},
 			
-			removeChartData: function(chart) {
-				chart.data.labels.pop();
-				chart.data.datasets.forEach(function(dataset) {
-					dataset.data.pop();
-				});
+			updateChart: function(chart, data) {
+				chart.data = data;
+				chart.update()
 			},
-			
-			addChartData: function(chart, datasets) {
-				for(var i = 0; i < datasets.length; i++) {
-					chart.data.datasets.forEach(function(dataset) {
-						dataset.data.push(datasets[i]);
-					});
-				}
-			}
-			
 		}
 		
 	});
+	
 	// Build the set of counties
-	for(var i = 0; i < COUNTIES.length; i++) {
+	for(var county of COUNTIES) {
 		CovidApp.counties.push({
-			name: COUNTIES[i],
+			name: county,
 			selected: false,
 			data: {}
 		});
