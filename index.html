@@ -109,9 +109,38 @@
 				</div>
 			</div>
         </div>
+		<div class="row mb-4">
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-body">
+						<h2 class="card-title text-center">Total Deaths</h2>
+						<canvas id="deaths" style="max-height: 500px; width: 100%"></canvas>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-body">
+						<h2 class="card-title text-center">Daily New Deaths<sup>2</sup></h2>
+						<canvas id="new-deaths" style="max-height: 500px; width: 100%"></canvas>
+					</div>
+				</div>
+			</div>
+        </div>
 
 		<section id="notes">
 			<h2>Notes</h2>
+			
+			<p>All data is based on the 
+				<a href="https://github.com/CSSEGISandData/COVID-19">
+				Johns Hopkins University COVID-19 Data Repository
+				</a> using the 
+				<a href="https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports">
+				Daily Reports
+				</a>
+				data.
+			</p>
+			
 			<ol class="pl-3">
 				<li>
 					These active case numbers are an <b>estimate</b> and 
@@ -123,7 +152,14 @@
 					The threshold of 14 days is based on 
 					<a href="https://www.hopkinsmedicine.org/health/conditions-and-diseases/coronavirus/diagnosed-with-covid-19-what-to-expect">
 					this Johns Hopkins Medicine article</a> 
-					stating that most cases clear up within two weeks.
+					stating that most cases clear up within two weeks. Accordingly, the
+					shape of the Daily Active Cases chart is very similar to the
+					shape of the Daily New Cases - 14 Day Rolling Average chart.
+				</li>
+				
+				<li>
+					Cases where daily new deaths are less than zero indicates
+					corrections in the data reported to the Johns Hopkins dataset.
 				</li>
 			</ol>
 		</section>
@@ -211,6 +247,36 @@
 			}
 		} 
 	});
+	
+	var deathsCtx = document.getElementById('deaths').getContext('2d');
+	var deathsChart = new Chart(deathsCtx, {
+		type: "line",
+		data: {},
+		options: {
+			scales: {
+				xAxes: [{type: "time", time: {unit: "day"}}]
+			},
+			tooltips: {
+				intersect: false,
+				mode: "index"
+			}
+		} 
+	});
+	
+	var newDeathsCtx = document.getElementById('new-deaths').getContext('2d');
+	var newDeathsChart = new Chart(newDeathsCtx, {
+		type: "line",
+		data: {},
+		options: {
+			scales: {
+				xAxes: [{type: "time", time: {unit: "day"}}]
+			},
+			tooltips: {
+				intersect: false,
+				mode: "index"
+			}
+		} 
+	});
 
 	<!-- Vue app -->
 	const CovidApp = new Vue({
@@ -241,6 +307,8 @@
 				var newCasesData = {datasets: []};
 				var activeCasesData = {datasets: []};
 				var newCasesAvgData = {datasets: []}
+				var deathsData = {datasets: []}
+				var newDeathsData = {datasets: []}
 				
 				for(var county of this.counties) { 
 					if (county.selected === false) {
@@ -250,22 +318,30 @@
 					var newCasesDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					var activeCasesDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					var newCasesAvgDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var deathsDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var newDeathsDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					for(var date in county.data) {
 						casesDataset.data.push({x: date, y: county.data[date].cases});
 						newCasesDataset.data.push({x: date, y: county.data[date].new_cases});
 						activeCasesDataset.data.push({x: date, y: county.data[date].estimated_active_cases});
 						newCasesAvgDataset.data.push({x: date, y: county.data[date].rolling_avg_new_cases});
+						deathsDataset.data.push({x: date, y: county.data[date].deaths});
+						newDeathsDataset.data.push({x: date, y: county.data[date].new_deaths});
 					}
 					casesData.datasets.push(casesDataset);
 					newCasesData.datasets.push(newCasesDataset);
 					activeCasesData.datasets.push(activeCasesDataset);
-					newCasesAvgData.datasets.push(newCasesDataset);
+					newCasesAvgData.datasets.push(newCasesAvgDataset);
+					deathsData.datasets.push(deathsDataset);
+					newDeathsData.datasets.push(newDeathsDataset);
 				}
 				
 				this.updateChart(casesChart, casesData);
 				this.updateChart(newCasesChart, newCasesData);
 				this.updateChart(activeCasesChart, activeCasesData);
 				this.updateChart(newCasesAvgChart, newCasesAvgData);
+				this.updateChart(deathsChart, deathsData);
+				this.updateChart(newDeathsChart, newDeathsData);
 			},
 			
 			updateChart: function(chart, data) {
