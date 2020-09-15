@@ -39,6 +39,14 @@
 		.navbar {
 			color: white;
 		}
+		#counties ul {
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+		}
+		#counties ul li {
+			width: 45%;
+		}
 	</style>
 </head>
 
@@ -62,7 +70,7 @@
 					</h2>
 					<div class="collapse collapsed" id="counties">
 						<div class="card-body">
-							<ul class="collapsible-tree">
+							<ul>
 								<li v-for="county in counties" :key="county.name" style="list-style-type: none">
 									<label>
 										<input type="checkbox" v-model="county.selected" v-on:change="toggleCounty(county)"> 
