@@ -74,7 +74,7 @@
         </div>
 
         <div class="row mb-4">
-			<div class="col-md-6">
+			<div class="col-lg-6">
 				<div class="card">
 					<div class="card-body">
 						<h2 class="card-title text-center">Total Cases</h2>
@@ -82,7 +82,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-md-6">
+			<div class="col-lg-6">
 				<div class="card">
 					<div class="card-body">
 						<h2 class="card-title text-center">Daily Active Cases (Estimate)<sup>1</sup></h2>
@@ -92,7 +92,7 @@
 			</div>
         </div>
         <div class="row mb-4">
-			<div class="col-md-6">
+			<div class="col-lg-6">
 				<div class="card">
 					<div class="card-body">
 						<h2 class="card-title text-center">Daily New Cases</h2>
@@ -100,7 +100,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-md-6">
+			<div class="col-lg-6">
 				<div class="card">
 					<div class="card-body">
 						<h2 class="card-title text-center">Daily New Cases - 14 Day Rolling Average</h2>
@@ -110,7 +110,7 @@
 			</div>
         </div>
 		<div class="row mb-4">
-			<div class="col-md-6">
+			<div class="col-lg-6">
 				<div class="card">
 					<div class="card-body">
 						<h2 class="card-title text-center">Total Deaths</h2>
@@ -118,7 +118,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-md-6">
+			<div class="col-lg-6">
 				<div class="card">
 					<div class="card-body">
 						<h2 class="card-title text-center">Daily New Deaths<sup>2</sup></h2>
@@ -186,6 +186,14 @@
 		"St. Louis City", "St. Louis", "Ste. Genevieve", "Stoddard", "Stone", "Sullivan", "Taney",
 		"Texas", "Vernon", "Warren", "Washington", "Wayne", "Webster", "Worth", "Unassigned" 
 	];
+	
+	var DEFAULT_COUNTIES = [];
+	params = new URLSearchParams(window.location.search);
+	if (params.get('defaults') !== null) {
+		for (var countyName of params.get('defaults').split(',')) {
+			DEFAULT_COUNTIES.push(countyName.toLowerCase());
+		}
+	}
 	
 	<!-- Initialize charts -->
 	var casesCtx = document.getElementById('cases').getContext('2d');
@@ -386,14 +394,23 @@
 	for(var county of COUNTIES) {
 		CovidApp.counties.push({
 			name: county,
-			selected: false,
+			selected: DEFAULT_COUNTIES.indexOf(county.toLowerCase()) !== -1,
 			data: {}
 		});
 	}
 	
-	// Activate the STATEWIDE "county" by default
-	CovidApp.counties[0].selected = true;
-	CovidApp.toggleCounty(CovidApp.counties[0]);
+	// Select the STATEWIDE "county" by default if no other defaults are selected
+	if (DEFAULT_COUNTIES.length == 0) {
+		CovidApp.counties[0].selected = true;
+	}
+	
+	// Activate the default counties
+	for (var county of CovidApp.counties) {
+		if (county.selected) {
+			CovidApp.toggleCounty(county);
+		}
+	}
+	
 	</script>
 
 </body>
