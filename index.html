@@ -342,6 +342,10 @@
 		},
 		methods: {
 			toggleCounty: function(county) {
+				var activeCounties = this.counties
+					.filter(function(county){return county.selected})
+					.map(function(county){return county.name.toLowerCase()});
+				history.pushState({},"","?defaults=" + activeCounties.join(","));
 				if(county.selected && Object.keys(county.data).length === 0) {
 					var that = this;
 					Promise.resolve(this.getData(county)).then(function() {
