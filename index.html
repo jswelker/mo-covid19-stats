@@ -146,7 +146,7 @@
 			<div class="col-lg-6">
 				<div class="card mb-4">
 					<div class="card-body">
-						<h2 class="card-title text-center">Daily New Cases - 14 Day Rolling Average</h2>
+						<h2 class="card-title text-center">Daily New Cases - 7 Day Rolling Average</h2>
 						<canvas id="new-cases-avg" style="max-height: 500px; width: 100%"></canvas>
 					</div>
 				</div>
@@ -154,7 +154,7 @@
 			<div class="col-lg-6">
 				<div class="card mb-4">
 					<div class="card-body">
-						<h2 class="card-title text-center">Daily New Cases Per 1,000 Population - 14 Day Rolling Average</h2>
+						<h2 class="card-title text-center">Daily New Cases Per 1,000 Population - 7 Day Rolling Average</h2>
 						<canvas id="new-cases-avg-1000" style="max-height: 500px; width: 100%"></canvas>
 					</div>
 				</div>
@@ -222,9 +222,7 @@
 					The threshold of 14 days is based on 
 					<a href="https://www.hopkinsmedicine.org/health/conditions-and-diseases/coronavirus/diagnosed-with-covid-19-what-to-expect">
 					this Johns Hopkins Medicine article</a> 
-					stating that most cases clear up within two weeks. Accordingly, the
-					shape of the Daily Active Cases chart is very similar to the
-					shape of the Daily New Cases - 14 Day Rolling Average chart.
+					stating that most cases clear up within two weeks.
 				</li>
 				
 				<li>
@@ -378,11 +376,17 @@
 						newDeaths1000Dataset.data.push({x: date, y: county.data[date].new_deaths_per_1000});
 					}
 					casesData.datasets.push(casesDataset);
+					cases1000Data.datasets.push(cases1000Dataset);
 					newCasesData.datasets.push(newCasesDataset);
+					newCases1000Data.datasets.push(newCases1000Dataset);
 					activeCasesData.datasets.push(activeCasesDataset);
+					activeCases1000Data.datasets.push(activeCases1000Dataset);
 					newCasesAvgData.datasets.push(newCasesAvgDataset);
+					newCasesAvg1000Data.datasets.push(newCasesAvg1000Dataset);
 					deathsData.datasets.push(deathsDataset);
+					deaths1000Data.datasets.push(deaths1000Dataset);
 					newDeathsData.datasets.push(newDeathsDataset);
+					newDeaths1000Data.datasets.push(newDeaths1000Dataset);
 				}
 				
 				this.updateChart(CHARTS['cases'], casesData);
