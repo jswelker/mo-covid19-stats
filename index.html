@@ -100,8 +100,26 @@
 			<div class="col-lg-6">
 				<div class="card mb-4">
 					<div class="card-body">
+						<h2 class="card-title text-center">Total Cases Per 1,000 Population</h2>
+						<canvas id="cases-1000" style="max-height: 500px; width: 100%"></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="card mb-4">
+					<div class="card-body">
 						<h2 class="card-title text-center">Daily Active Cases (Estimate)<sup>1</sup></h2>
 						<canvas id="active-cases" style="max-height: 500px; width: 100%"></canvas>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="card mb-4">
+					<div class="card-body">
+						<h2 class="card-title text-center">Daily Active Cases Per 1,000 Population (Estimate)<sup>1</sup></h2>
+						<canvas id="active-cases-1000" style="max-height: 500px; width: 100%"></canvas>
 					</div>
 				</div>
 			</div>
@@ -118,8 +136,26 @@
 			<div class="col-lg-6">
 				<div class="card mb-4">
 					<div class="card-body">
+						<h2 class="card-title text-center">Daily New Cases Per 1,000 Population</h2>
+						<canvas id="new-cases-1000" style="max-height: 500px; width: 100%"></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row mb-4">
+			<div class="col-lg-6">
+				<div class="card mb-4">
+					<div class="card-body">
 						<h2 class="card-title text-center">Daily New Cases - 14 Day Rolling Average</h2>
 						<canvas id="new-cases-avg" style="max-height: 500px; width: 100%"></canvas>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="card mb-4">
+					<div class="card-body">
+						<h2 class="card-title text-center">Daily New Cases Per 1,000 Population - 14 Day Rolling Average</h2>
+						<canvas id="new-cases-avg-1000" style="max-height: 500px; width: 100%"></canvas>
 					</div>
 				</div>
 			</div>
@@ -136,8 +172,26 @@
 			<div class="col-lg-6">
 				<div class="card mb-4">
 					<div class="card-body">
-						<h2 class="card-title text-center">Daily New Deaths<sup>2</sup></h2>
+						<h2 class="card-title text-center">Total Deaths Per 1,000 Population</h2>
+						<canvas id="deaths-1000" style="max-height: 500px; width: 100%"></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row mb-4">
+			<div class="col-lg-6">
+				<div class="card mb-4">
+					<div class="card-body">
+						<h2 class="card-title text-center">Daily New Deaths</h2>
 						<canvas id="new-deaths" style="max-height: 500px; width: 100%"></canvas>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="card mb-4">
+					<div class="card-body">
+						<h2 class="card-title text-center">Daily New Deaths Per 1,000 Population</h2>
+						<canvas id="new-deaths-1000" style="max-height: 500px; width: 100%"></canvas>
 					</div>
 				</div>
 			</div>
@@ -177,6 +231,12 @@
 					Daily new cases and deaths less than zero indicate
 					corrections in the data reported to the Johns Hopkins dataset.
 				</li>
+				
+				<li>
+					County populations data is from the 
+					<a href="https://www.census.gov/data/tables/time-series/demo/popest/2010s-counties-detail.html">
+					US Census Bureau</a>.
+				</li>
 			</ol>
 		</section>
 
@@ -214,125 +274,35 @@
 	}
 	
 	<!-- Initialize charts -->
-	var casesCtx = document.getElementById('cases').getContext('2d');
-	var casesChart = new Chart(casesCtx, {
-		type: "line",
-		data: {},
-		options: {
-			scales: {
-				xAxes: [{type: "time", time: {unit: "day"}}]
-			},
-			tooltips: {
-				intersect: false,
-				mode: "index"
-			},
-			plugins: {
-				colorschemes: {
-					scheme: 'tableau.Tableau10'
-				}
-			}
-		} 
-	});
+	var CHART_IDS = [
+		'cases', 'cases-1000', 'new-cases', 'new-cases-1000',
+		'new-cases-avg', 'new-cases-avg-1000', 'active-cases', 'active-cases-1000',
+		'deaths', 'deaths-1000', 'new-deaths', 'new-deaths-1000',
 		
-	var newCasesCtx = document.getElementById('new-cases').getContext('2d');
-	var newCasesChart = new Chart(newCasesCtx, {
-		type: "line",
-		data: {},
-		options: {
-			scales: {
-				xAxes: [{type: "time", time: {unit: "day"}}]
-			},
-			tooltips: {
-				intersect: false,
-				mode: "index"
-			},
-			plugins: {
-				colorschemes: {
-					scheme: 'tableau.Tableau10'
+	];
+	var CHARTS = {};
+	for (chartId of CHART_IDS) {
+		var ctx = document.getElementById(chartId).getContext('2d');
+		CHARTS[chartId] = new Chart(ctx, {
+			type: "line",
+			data: {},
+			options: {
+				scales: {
+					xAxes: [{type: "time", time: {unit: "day"}}]
+				},
+				tooltips: {
+					intersect: false,
+					mode: "index"
+				},
+				plugins: {
+					colorschemes: {
+						scheme: 'tableau.Tableau10'
+					}
 				}
-			}
-		} 
-	});
+			} 
+		});
+	}
 	
-	var newCasesAvgCtx = document.getElementById('new-cases-avg').getContext('2d');
-	var newCasesAvgChart = new Chart(newCasesAvgCtx, {
-		type: "line",
-		data: {},
-		options: {
-			scales: {
-				xAxes: [{type: "time", time: {unit: "day"}}]
-			},
-			tooltips: {
-				intersect: false,
-				mode: "index"
-			},
-			plugins: {
-				colorschemes: {
-					scheme: 'tableau.Tableau10'
-				}
-			}
-		} 
-	});
-
-	var activeCasesCtx = document.getElementById('active-cases').getContext('2d');
-	var activeCasesChart = new Chart(activeCasesCtx, {
-		type: "line",
-		data: {},
-		options: {
-			scales: {
-				xAxes: [{type: "time", time: {unit: "day"}}]
-			},
-			tooltips: {
-				intersect: false,
-				mode: "index"
-			},
-			plugins: {
-				colorschemes: {
-					scheme: 'tableau.Tableau10'
-				}
-			}
-		} 
-	});
-	
-	var deathsCtx = document.getElementById('deaths').getContext('2d');
-	var deathsChart = new Chart(deathsCtx, {
-		type: "line",
-		data: {},
-		options: {
-			scales: {
-				xAxes: [{type: "time", time: {unit: "day"}}]
-			},
-			tooltips: {
-				intersect: false,
-				mode: "index"
-			},
-			plugins: {
-				colorschemes: {
-					scheme: 'tableau.Tableau10'
-				}
-			}
-		} 
-	});
-	
-	var newDeathsCtx = document.getElementById('new-deaths').getContext('2d');
-	var newDeathsChart = new Chart(newDeathsCtx, {
-		type: "line",
-		data: {},
-		options: {
-			scales: {
-				xAxes: [{type: "time", time: {unit: "day"}}]
-			},
-			tooltips: {
-				intersect: false,
-				mode: "index"
-			},
-			plugins: {
-				colorschemes: {
-					scheme: 'tableau.Tableau10'
-				}
-			}
-		} 
-	});
 
 	<!-- Vue app -->
 	const CovidApp = new Vue({
@@ -364,29 +334,48 @@
 			},
 			updateChartDataSets: function() {
 				var casesData = {datasets: []};
+				var cases1000Data = {datasets: []};
 				var newCasesData = {datasets: []};
+				var newCases1000Data = {datasets: []};
 				var activeCasesData = {datasets: []};
+				var activeCases1000Data = {datasets: []};
 				var newCasesAvgData = {datasets: []}
+				var newCasesAvg1000Data = {datasets: []};
 				var deathsData = {datasets: []}
+				var deaths1000Data = {datasets: []};
 				var newDeathsData = {datasets: []}
+				var newDeaths1000Data = {datasets: []};
 				
 				for(var county of this.counties) { 
 					if (county.selected === false) {
 						continue;
 					}
 					var casesDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var cases1000Dataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					var newCasesDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var newCases1000Dataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					var activeCasesDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var activeCases1000Dataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					var newCasesAvgDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var newCasesAvg1000Dataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					var deathsDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var deaths1000Dataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					var newDeathsDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var newDeaths1000Dataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					
 					for(var date in county.data) {
 						casesDataset.data.push({x: date, y: county.data[date].cases});
+						cases1000Dataset.data.push({x: date, y: county.data[date].cases_per_1000});
 						newCasesDataset.data.push({x: date, y: county.data[date].new_cases});
+						newCases1000Dataset.data.push({x: date, y: county.data[date].new_cases_per_1000});
 						activeCasesDataset.data.push({x: date, y: county.data[date].estimated_active_cases});
+						activeCases1000Dataset.data.push({x: date, y: county.data[date].estimated_active_cases_per_1000});
 						newCasesAvgDataset.data.push({x: date, y: county.data[date].rolling_avg_new_cases});
+						newCasesAvg1000Dataset.data.push({x: date, y: county.data[date].rolling_avg_new_cases_per_1000});
 						deathsDataset.data.push({x: date, y: county.data[date].deaths});
+						deaths1000Dataset.data.push({x: date, y: county.data[date].deaths_per_1000});
 						newDeathsDataset.data.push({x: date, y: county.data[date].new_deaths});
+						newDeaths1000Dataset.data.push({x: date, y: county.data[date].new_deaths_per_1000});
 					}
 					casesData.datasets.push(casesDataset);
 					newCasesData.datasets.push(newCasesDataset);
@@ -396,12 +385,18 @@
 					newDeathsData.datasets.push(newDeathsDataset);
 				}
 				
-				this.updateChart(casesChart, casesData);
-				this.updateChart(newCasesChart, newCasesData);
-				this.updateChart(activeCasesChart, activeCasesData);
-				this.updateChart(newCasesAvgChart, newCasesAvgData);
-				this.updateChart(deathsChart, deathsData);
-				this.updateChart(newDeathsChart, newDeathsData);
+				this.updateChart(CHARTS['cases'], casesData);
+				this.updateChart(CHARTS['cases-1000'], cases1000Data);
+				this.updateChart(CHARTS['new-cases'], newCasesData);
+				this.updateChart(CHARTS['new-cases-1000'], newCases1000Data);
+				this.updateChart(CHARTS['active-cases'], activeCasesData);
+				this.updateChart(CHARTS['active-cases-1000'], activeCases1000Data);
+				this.updateChart(CHARTS['new-cases-avg'], newCasesAvgData);
+				this.updateChart(CHARTS['new-cases-avg-1000'], newCasesAvg1000Data);
+				this.updateChart(CHARTS['deaths'], deathsData);
+				this.updateChart(CHARTS['deaths-1000'], deaths1000Data);
+				this.updateChart(CHARTS['new-deaths'], newDeathsData);
+				this.updateChart(CHARTS['new-deaths-1000'], newDeaths1000Data);
 			},
 			
 			updateChart: function(chart, data) {
