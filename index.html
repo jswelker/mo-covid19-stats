@@ -324,7 +324,7 @@
 				}
 			},
 			getData: function(county) {
-				var encodedCountyName = encodeURIComponent(county.name.replace(' ', '_'));
+				var encodedCountyName = encodeURIComponent(county.name.replaceAll(' ', '_'));
 				const url = "https://jswelker.github.io/mo-covid19-stats/data/" + encodedCountyName + ".json";
                 return axios.get(url).then(function (response) {
                     county.data = response.data;
