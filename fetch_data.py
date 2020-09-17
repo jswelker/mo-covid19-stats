@@ -136,12 +136,13 @@ while True:
                 "new_deaths_per_1000": 0,
                 "past_14_days_new_cases": 0,
                 "past_14_days_new_deaths": 0,
+                "past_7_days_new_cases": 0,
                 "estimated_active_cases": 0,
                 "estimated_active_cases_per_1000": 0,
                 "rolling_avg_new_cases": 0,
                 "rolling_avg_new_cases_per_1000": 0
             }
-
+        
         all_data["STATEWIDE"][date.isoformat()]["cases"] += cases
         all_data["STATEWIDE"][date.isoformat()]["cases_per_1000"] = round(1000 / statewide_total_population, 2) * all_data["STATEWIDE"][date.isoformat()]["cases"]
         all_data["STATEWIDE"][date.isoformat()]["new_cases"] += new_cases
@@ -152,9 +153,10 @@ while True:
         all_data["STATEWIDE"][date.isoformat()]["new_deaths_per_1000"] = round(1000 / statewide_total_population, 2) * all_data["STATEWIDE"][date.isoformat()]["new_deaths"]
         all_data["STATEWIDE"][date.isoformat()]["past_14_days_new_cases"] += past_14_new_cases
         all_data["STATEWIDE"][date.isoformat()]["past_14_days_new_deaths"] += past_14_new_deaths
+        all_data["STATEWIDE"][date.isoformat()]["past_7_days_new_cases"] += past_7_new_cases
         all_data["STATEWIDE"][date.isoformat()]["estimated_active_cases"] = all_data["STATEWIDE"][date.isoformat()]["past_14_days_new_cases"] - all_data["STATEWIDE"][date.isoformat()]["past_14_days_new_deaths"]
         all_data["STATEWIDE"][date.isoformat()]["estimated_active_cases_per_1000"] = round(1000 / statewide_total_population, 2) * all_data["STATEWIDE"][date.isoformat()]["estimated_active_cases"]
-        all_data["STATEWIDE"][date.isoformat()]["rolling_avg_new_cases"] = int(all_data["STATEWIDE"][date.isoformat()]["past_14_days_new_cases"] / 14)
+        all_data["STATEWIDE"][date.isoformat()]["rolling_avg_new_cases"] = round(all_data["STATEWIDE"][date.isoformat()]["past_7_days_new_cases"] / 7, 2)
         all_data["STATEWIDE"][date.isoformat()]["rolling_avg_new_cases_per_1000"] = round(1000 / statewide_total_population, 2) * all_data["STATEWIDE"][date.isoformat()]["rolling_avg_new_cases"]
         
     # Move on to the next date after handling all counties for this date
