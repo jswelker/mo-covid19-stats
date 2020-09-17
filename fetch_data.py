@@ -165,6 +165,6 @@ while True:
 # Create a JSON file for each county in the all_data dict
 for county_name in all_data:
     json_string = json.dumps(all_data[county_name])
-    filename = "data" + os.path.sep + urllib.parse.quote(county_name) + ".json"
+    filename = f"data{os.path.sep}{urllib.parse.quote(county_name.replace(' ', '_'))}.json"
     with open(filename, "w") as file:
         file.write(json_string)
