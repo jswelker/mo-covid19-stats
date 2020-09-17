@@ -100,8 +100,8 @@
 			<div class="col-lg-6">
 				<div class="card mb-4">
 					<div class="card-body">
-						<h2 class="card-title text-center">Total Cases Per 1,000 Population</h2>
-						<canvas id="cases-1000" style="max-height: 500px; width: 100%"></canvas>
+						<h2 class="card-title text-center">Total Cases Per 100K Population</h2>
+						<canvas id="cases-100k" style="max-height: 500px; width: 100%"></canvas>
 					</div>
 				</div>
 			</div>
@@ -118,8 +118,8 @@
 			<div class="col-lg-6">
 				<div class="card mb-4">
 					<div class="card-body">
-						<h2 class="card-title text-center">Daily Active Cases Per 1,000 Population (Estimate)<sup>1</sup></h2>
-						<canvas id="active-cases-1000" style="max-height: 500px; width: 100%"></canvas>
+						<h2 class="card-title text-center">Daily Active Cases Per 100K Population (Estimate)<sup>1</sup></h2>
+						<canvas id="active-cases-100k" style="max-height: 500px; width: 100%"></canvas>
 					</div>
 				</div>
 			</div>
@@ -136,8 +136,8 @@
 			<div class="col-lg-6">
 				<div class="card mb-4">
 					<div class="card-body">
-						<h2 class="card-title text-center">Daily New Cases Per 1,000 Population</h2>
-						<canvas id="new-cases-1000" style="max-height: 500px; width: 100%"></canvas>
+						<h2 class="card-title text-center">Daily New Cases Per 100K Population</h2>
+						<canvas id="new-cases-100k" style="max-height: 500px; width: 100%"></canvas>
 					</div>
 				</div>
 			</div>
@@ -154,8 +154,8 @@
 			<div class="col-lg-6">
 				<div class="card mb-4">
 					<div class="card-body">
-						<h2 class="card-title text-center">Daily New Cases Per 1,000 Population - 7 Day Rolling Average</h2>
-						<canvas id="new-cases-avg-1000" style="max-height: 500px; width: 100%"></canvas>
+						<h2 class="card-title text-center">Daily New Cases Per 100K Population - 7 Day Rolling Average</h2>
+						<canvas id="new-cases-avg-100k" style="max-height: 500px; width: 100%"></canvas>
 					</div>
 				</div>
 			</div>
@@ -172,8 +172,8 @@
 			<div class="col-lg-6">
 				<div class="card mb-4">
 					<div class="card-body">
-						<h2 class="card-title text-center">Total Deaths Per 1,000 Population</h2>
-						<canvas id="deaths-1000" style="max-height: 500px; width: 100%"></canvas>
+						<h2 class="card-title text-center">Total Deaths Per 100K Population</h2>
+						<canvas id="deaths-100k" style="max-height: 500px; width: 100%"></canvas>
 					</div>
 				</div>
 			</div>
@@ -190,8 +190,8 @@
 			<div class="col-lg-6">
 				<div class="card mb-4">
 					<div class="card-body">
-						<h2 class="card-title text-center">Daily New Deaths Per 1,000 Population</h2>
-						<canvas id="new-deaths-1000" style="max-height: 500px; width: 100%"></canvas>
+						<h2 class="card-title text-center">Daily New Deaths Per 100K Population</h2>
+						<canvas id="new-deaths-100k" style="max-height: 500px; width: 100%"></canvas>
 					</div>
 				</div>
 			</div>
@@ -273,9 +273,9 @@
 	
 	<!-- Initialize charts -->
 	var CHART_IDS = [
-		'cases', 'cases-1000', 'new-cases', 'new-cases-1000',
-		'new-cases-avg', 'new-cases-avg-1000', 'active-cases', 'active-cases-1000',
-		'deaths', 'deaths-1000', 'new-deaths', 'new-deaths-1000',
+		'cases', 'cases-100k', 'new-cases', 'new-cases-100k',
+		'new-cases-avg', 'new-cases-avg-100k', 'active-cases', 'active-cases-100k',
+		'deaths', 'deaths-100k', 'new-deaths', 'new-deaths-100k',
 		
 	];
 	var CHARTS = {};
@@ -332,75 +332,75 @@
 			},
 			updateChartDataSets: function() {
 				var casesData = {datasets: []};
-				var cases1000Data = {datasets: []};
+				var cases100kData = {datasets: []};
 				var newCasesData = {datasets: []};
-				var newCases1000Data = {datasets: []};
+				var newCases100kData = {datasets: []};
 				var activeCasesData = {datasets: []};
-				var activeCases1000Data = {datasets: []};
+				var activeCases100kData = {datasets: []};
 				var newCasesAvgData = {datasets: []}
-				var newCasesAvg1000Data = {datasets: []};
+				var newCasesAvg100kData = {datasets: []};
 				var deathsData = {datasets: []}
-				var deaths1000Data = {datasets: []};
+				var deaths100kData = {datasets: []};
 				var newDeathsData = {datasets: []}
-				var newDeaths1000Data = {datasets: []};
+				var newDeaths100kData = {datasets: []};
 				
 				for(var county of this.counties) { 
 					if (county.selected === false) {
 						continue;
 					}
 					var casesDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
-					var cases1000Dataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var cases100kDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					var newCasesDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
-					var newCases1000Dataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var newCases100kDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					var activeCasesDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
-					var activeCases1000Dataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var activeCases100kDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					var newCasesAvgDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
-					var newCasesAvg1000Dataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var newCasesAvg100kDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					var deathsDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
-					var deaths1000Dataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var deaths100kDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					var newDeathsDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
-					var newDeaths1000Dataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
+					var newDeaths100kDataset = {label: county.name, data: [], pointRadius: 0, lineTension: 0, fill: false};
 					
 					for(var date in county.data) {
 						casesDataset.data.push({x: date, y: county.data[date].cases});
-						cases1000Dataset.data.push({x: date, y: county.data[date].cases_per_1000});
+						cases100kDataset.data.push({x: date, y: county.data[date].cases_per_100k});
 						newCasesDataset.data.push({x: date, y: county.data[date].new_cases});
-						newCases1000Dataset.data.push({x: date, y: county.data[date].new_cases_per_1000});
+						newCases100kDataset.data.push({x: date, y: county.data[date].new_cases_per_100k});
 						activeCasesDataset.data.push({x: date, y: county.data[date].estimated_active_cases});
-						activeCases1000Dataset.data.push({x: date, y: county.data[date].estimated_active_cases_per_1000});
+						activeCases100kDataset.data.push({x: date, y: county.data[date].estimated_active_cases_per_100k});
 						newCasesAvgDataset.data.push({x: date, y: county.data[date].rolling_avg_new_cases});
-						newCasesAvg1000Dataset.data.push({x: date, y: county.data[date].rolling_avg_new_cases_per_1000});
+						newCasesAvg100kDataset.data.push({x: date, y: county.data[date].rolling_avg_new_cases_per_100k});
 						deathsDataset.data.push({x: date, y: county.data[date].deaths});
-						deaths1000Dataset.data.push({x: date, y: county.data[date].deaths_per_1000});
+						deaths100kDataset.data.push({x: date, y: county.data[date].deaths_per_100k});
 						newDeathsDataset.data.push({x: date, y: county.data[date].new_deaths});
-						newDeaths1000Dataset.data.push({x: date, y: county.data[date].new_deaths_per_1000});
+						newDeaths100kDataset.data.push({x: date, y: county.data[date].new_deaths_per_100k});
 					}
 					casesData.datasets.push(casesDataset);
-					cases1000Data.datasets.push(cases1000Dataset);
+					cases100kData.datasets.push(cases100kDataset);
 					newCasesData.datasets.push(newCasesDataset);
-					newCases1000Data.datasets.push(newCases1000Dataset);
+					newCases100kData.datasets.push(newCases100kDataset);
 					activeCasesData.datasets.push(activeCasesDataset);
-					activeCases1000Data.datasets.push(activeCases1000Dataset);
+					activeCases100kData.datasets.push(activeCases100kDataset);
 					newCasesAvgData.datasets.push(newCasesAvgDataset);
-					newCasesAvg1000Data.datasets.push(newCasesAvg1000Dataset);
+					newCasesAvg100kData.datasets.push(newCasesAvg100kDataset);
 					deathsData.datasets.push(deathsDataset);
-					deaths1000Data.datasets.push(deaths1000Dataset);
+					deaths100kData.datasets.push(deaths100kDataset);
 					newDeathsData.datasets.push(newDeathsDataset);
-					newDeaths1000Data.datasets.push(newDeaths1000Dataset);
+					newDeaths100kData.datasets.push(newDeaths100kDataset);
 				}
 				
 				this.updateChart(CHARTS['cases'], casesData);
-				this.updateChart(CHARTS['cases-1000'], cases1000Data);
+				this.updateChart(CHARTS['cases-100k'], cases100kData);
 				this.updateChart(CHARTS['new-cases'], newCasesData);
-				this.updateChart(CHARTS['new-cases-1000'], newCases1000Data);
+				this.updateChart(CHARTS['new-cases-100k'], newCases100kData);
 				this.updateChart(CHARTS['active-cases'], activeCasesData);
-				this.updateChart(CHARTS['active-cases-1000'], activeCases1000Data);
+				this.updateChart(CHARTS['active-cases-100k'], activeCases100kData);
 				this.updateChart(CHARTS['new-cases-avg'], newCasesAvgData);
-				this.updateChart(CHARTS['new-cases-avg-1000'], newCasesAvg1000Data);
+				this.updateChart(CHARTS['new-cases-avg-100k'], newCasesAvg100kData);
 				this.updateChart(CHARTS['deaths'], deathsData);
-				this.updateChart(CHARTS['deaths-1000'], deaths1000Data);
+				this.updateChart(CHARTS['deaths-100k'], deaths100kData);
 				this.updateChart(CHARTS['new-deaths'], newDeathsData);
-				this.updateChart(CHARTS['new-deaths-1000'], newDeaths1000Data);
+				this.updateChart(CHARTS['new-deaths-100k'], newDeaths100kData);
 			},
 			
 			updateChart: function(chart, data) {

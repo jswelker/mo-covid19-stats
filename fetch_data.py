@@ -110,54 +110,54 @@ while True:
         
         all_data[county_name][date.isoformat()] = {
             "cases": cases,
-            "cases_per_1000": round(1000 / population, 2) * cases,
+            "cases_per_100k": round(100000 / population, 2) * cases,
             "new_cases": new_cases,
-            "new_cases_per_1000": round(1000 / population, 2) * new_cases,
+            "new_cases_per_100k": round(100000 / population, 2) * new_cases,
             "deaths": deaths,
-            "deaths_per_1000": round(1000 / population, 2) * deaths,
+            "deaths_per_100k": round(100000 / population, 2) * deaths,
             "new_deaths": new_deaths,
-            "new_deaths_per_1000": round(1000 / population, 2) * new_deaths,
+            "new_deaths_per_100k": round(100000 / population, 2) * new_deaths,
             "rolling_avg_new_cases": rolling_avg_new_cases,
-            "rolling_avg_new_cases_per_1000": round(1000 / population, 2) * rolling_avg_new_cases,
+            "rolling_avg_new_cases_per_100k": round(100000 / population, 2) * rolling_avg_new_cases,
             "estimated_active_cases": estimated_active_cases,
-            "estimated_active_cases_per_1000": round(1000 / population, 2) * estimated_active_cases
+            "estimated_active_cases_per_100k": round(100000 / population, 2) * estimated_active_cases
         }
         
         # Add this county's data to the statewide totals for this date
         if date.isoformat() not in all_data["STATEWIDE"]:
             all_data["STATEWIDE"][date.isoformat()] = {
                 "cases": 0,
-                "cases_per_1000": 0,
+                "cases_per_100k": 0,
                 "new_cases": 0,
-                "new_cases_per_1000": 0,
+                "new_cases_per_100k": 0,
                 "deaths": 0,
-                "deaths_per_1000": 0,
+                "deaths_per_100k": 0,
                 "new_deaths": 0,
-                "new_deaths_per_1000": 0,
+                "new_deaths_per_100k": 0,
                 "past_14_days_new_cases": 0,
                 "past_14_days_new_deaths": 0,
                 "past_7_days_new_cases": 0,
                 "estimated_active_cases": 0,
-                "estimated_active_cases_per_1000": 0,
+                "estimated_active_cases_per_100k": 0,
                 "rolling_avg_new_cases": 0,
-                "rolling_avg_new_cases_per_1000": 0
+                "rolling_avg_new_cases_per_100k": 0
             }
         
         all_data["STATEWIDE"][date.isoformat()]["cases"] += cases
-        all_data["STATEWIDE"][date.isoformat()]["cases_per_1000"] = round(1000 / statewide_total_population, 2) * all_data["STATEWIDE"][date.isoformat()]["cases"]
+        all_data["STATEWIDE"][date.isoformat()]["cases_per_100k"] = round(100000 / statewide_total_population, 2) * all_data["STATEWIDE"][date.isoformat()]["cases"]
         all_data["STATEWIDE"][date.isoformat()]["new_cases"] += new_cases
-        all_data["STATEWIDE"][date.isoformat()]["new_cases_per_1000"] = round(1000 / statewide_total_population, 2) * all_data["STATEWIDE"][date.isoformat()]["new_cases"]
+        all_data["STATEWIDE"][date.isoformat()]["new_cases_per_100k"] = round(100000 / statewide_total_population, 2) * all_data["STATEWIDE"][date.isoformat()]["new_cases"]
         all_data["STATEWIDE"][date.isoformat()]["deaths"] += deaths
-        all_data["STATEWIDE"][date.isoformat()]["deaths_per_1000"] = round(1000 / statewide_total_population, 2) * all_data["STATEWIDE"][date.isoformat()]["deaths"]
+        all_data["STATEWIDE"][date.isoformat()]["deaths_per_100k"] = round(100000 / statewide_total_population, 2) * all_data["STATEWIDE"][date.isoformat()]["deaths"]
         all_data["STATEWIDE"][date.isoformat()]["new_deaths"] += new_deaths
-        all_data["STATEWIDE"][date.isoformat()]["new_deaths_per_1000"] = round(1000 / statewide_total_population, 2) * all_data["STATEWIDE"][date.isoformat()]["new_deaths"]
+        all_data["STATEWIDE"][date.isoformat()]["new_deaths_per_100k"] = round(100000 / statewide_total_population, 2) * all_data["STATEWIDE"][date.isoformat()]["new_deaths"]
         all_data["STATEWIDE"][date.isoformat()]["past_14_days_new_cases"] += past_14_new_cases
         all_data["STATEWIDE"][date.isoformat()]["past_14_days_new_deaths"] += past_14_new_deaths
         all_data["STATEWIDE"][date.isoformat()]["past_7_days_new_cases"] += past_7_new_cases
         all_data["STATEWIDE"][date.isoformat()]["estimated_active_cases"] = all_data["STATEWIDE"][date.isoformat()]["past_14_days_new_cases"] - all_data["STATEWIDE"][date.isoformat()]["past_14_days_new_deaths"]
-        all_data["STATEWIDE"][date.isoformat()]["estimated_active_cases_per_1000"] = round(1000 / statewide_total_population, 2) * all_data["STATEWIDE"][date.isoformat()]["estimated_active_cases"]
+        all_data["STATEWIDE"][date.isoformat()]["estimated_active_cases_per_100k"] = round(100000 / statewide_total_population, 2) * all_data["STATEWIDE"][date.isoformat()]["estimated_active_cases"]
         all_data["STATEWIDE"][date.isoformat()]["rolling_avg_new_cases"] = round(all_data["STATEWIDE"][date.isoformat()]["past_7_days_new_cases"] / 7, 2)
-        all_data["STATEWIDE"][date.isoformat()]["rolling_avg_new_cases_per_1000"] = round(1000 / statewide_total_population, 2) * all_data["STATEWIDE"][date.isoformat()]["rolling_avg_new_cases"]
+        all_data["STATEWIDE"][date.isoformat()]["rolling_avg_new_cases_per_100k"] = round(100000 / statewide_total_population, 2) * all_data["STATEWIDE"][date.isoformat()]["rolling_avg_new_cases"]
         
     # Move on to the next date after handling all counties for this date
     date = date + datetime.timedelta(days=1)
