@@ -81,11 +81,11 @@ while True:
                 
         cases = int(row.get("Confirmed"))
         new_cases = 0
-        if yesterday_data and yesterday_data.get("cases"):
+        if yesterday_data is not None and yesterday_data.get("cases"):
             new_cases = cases - int(yesterday_data.get("cases"))
         deaths = int(row.get("Deaths"))
         new_deaths = 0
-        if yesterday_data and yesterday_data.get("deaths"):
+        if yesterday_data is not None and yesterday_data.get("deaths"):
             new_deaths = deaths - int(yesterday_data.get("deaths"))
         
         # Look up the county's data for the previous 6 and 13 days
